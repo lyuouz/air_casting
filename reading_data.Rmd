@@ -1,0 +1,39 @@
+---
+title: "reading_data"
+author: "Lyuou Zhang"
+date: "2/10/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+library(httr)
+library(jsonlite)
+
+```
+
+Link to API repo:
+https://github.com/HabitatMap/AirCasting/blob/master/doc/api.md
+
+Testing the example request: read as a JSON file and write in a .csv file
+
+```{r}
+
+json_file <- 'http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
+
+air_beam_mobile <- fromJSON(json_file)
+
+write.csv(air_beam_mobile, './data/air_beam_mobile.csv')
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+
