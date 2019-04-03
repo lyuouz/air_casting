@@ -1,0 +1,78 @@
+---
+title: "Visualization"
+author: "Lyuou Zhang"
+date: "4/2/2019"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(rjson)
+library(data.table)
+library(stringr)
+library(lubridate)
+
+```
+
+## Pulling data from API (shout-out to Chris)
+
+Chris provided this part of code. The idea is to pull all the session ids connected to the username `NYCEJA`, and saved in an R object `df`  
+
+```{r}
+real <- c("http://aircasting.org/api/realtime/sessions.json?page=0&page_size=500&q[measurements]=true&q[time_from]=0&q[time_to]=2552648500&q[usernames]=NYCEJA")
+
+tt <- jsonlite::fromJSON(real)
+t <- tt$streams$'AirBeam2-PM2.5'
+t <- data.table(t)
+ID <- t[!is.na(t$id)]$id
+
+name <- data.frame(tt$title,t$id)
+name <- name[!is.na(name$t.id),]
+colnames(name) <- c("title", "id")
+
+dt <- list()
+for (i in 1:length(ID)) {
+  sess <- paste0("http://aircasting.org/api/realtime/stream_measurements.json/?end_date=2281550369000&start_date=0&stream_ids[]=",ID[i])
+  s1 <- jsonlite::fromJSON(sess)
+  s1 <- data.table(s1)
+  s1$ID <- ID[i]
+  dt[[i]] <- data.table(s1)
+}
+
+library(plyr)
+df <- ldply(dt, data.frame)
+
+```
+
+check `df`. This data contains measurement from 23 stations (represented by 23 IDs), generated every minute from 2018-6 to 2019-3. Note that the earliest date is in 2000 which does not make sense. This is more likely to be 2019, so I will change all 2000 to 2019.
+
+```{r}
+# check data
+head(df) %>% 
+  knitr::kable()
+```
+
+A bit data cleaning and manipulation
+
+```{r}
+air_data <- df %>% 
+  as_tibble() %>% 
+  mutate(
+    time = str_replace(time, 'T', ' ')
+  ) %>% 
+  mutate(
+    time = str_replace(time, 'Z', '')
+  ) %>% 
+  mutate(
+    time = ymd_hms(time),
+    ID = as.character(ID)
+  ) %>% 
+  dplyr::rename(
+    station_id = ID
+  )
+
+```
+
+

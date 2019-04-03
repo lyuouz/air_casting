@@ -25,11 +25,17 @@ json_file <- 'http://aircasting.org/api/sessions.json?page=0&page_size=50&q[meas
 air_beam_mobile <- fromJSON(json_file)
 
 write.csv(air_beam_mobile, './data/air_beam_mobile.csv')
+
+
 ```
 
 
 ```{r}
 
+nyc_cd <- GET('https://data.cityofnewyork.us/resource/f2wn-ahk5.csv') %>% 
+  content('parsed') %>% 
+  arrange(year) %>% 
+  View()
 
 
 
