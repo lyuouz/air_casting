@@ -20,26 +20,81 @@ Testing the example request: read as a JSON file and write in a .csv file
 
 ```{r}
 
-json_file <- 'http://aircasting.org/api/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
+json_file <- 'http://aircasting.org/api/sessions.json?page=0&page_size=4000&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&q[location]=NewYork&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
 
-air_beam_mobile <- fromJSON(json_file)
+air_beam_mobile <- fromJSON(json_file) 
 
 write.csv(air_beam_mobile, './data/air_beam_mobile.csv')
 
 
 ```
 
+Questions to discuss:
+1. Do we need to specify everything in the customized link?
+2. If we do, is there a list of all the options available to plug in the link?
+
+Testing: session id, using example request
+
+Question:
+Which id should we use?
+
+
+test fixed sesssions
+```{r}
+test_fixed <- 'http://aircasting.org/api/realtime/sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1552648500&&q[location]=NewYork&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
+
+fromJSON(test_fixed)
+
+```
+
+
 
 ```{r}
 
-nyc_cd <- GET('https://data.cityofnewyork.us/resource/f2wn-ahk5.csv') %>% 
-  content('parsed') %>% 
-  arrange(year) %>% 
-  View()
+json_file2 <- 'http://aircasting.org/api/realtime/sessions.json?page=0&page_size=1000&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[location]=NewYork&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
+
+jsonfile3 <- 'http://aircasting.org/api/realtime/streaming_sessions.json?page=0&page_size=50&q[measurements]=true&q[time_from]=0&q[time_to]=1439&q[day_from]=0&q[day_to]=355&q[usernames]=HHHDenver&q[location]=Denver&q[sensor_name]=AirBeam-PM&q[unit_symbol]=µg/m³'
+
+air_beam_mobile2 <- fromJSON(json_file2)
+
+
+```
+
+
+Testing: stream measurements
+Question: 
+1. What are the measurements?
+2. Is there an effective way to convert the date?
+
+
+region
+
+```{r}
+test_region <- 'http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739%5D%7D'
+
+GET('http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D')
+
+test_region <- 'http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D'
+
+GET('http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D') %>% 
+  content('parsed')
+
+jsonlite::fromJSON('http://aircasting.org/api/region.json?q=%7B%22west%22:-84.6942497702206,%22east%22:-84.04024011948529,%22south%22:37.68000734867853,%22north%22:38.28288746625739,%22time_from%22:0,%22time_to%22:1552648992,%22grid_size_x%22:85.47297297297297,%22grid_size_y%22:25,%22tags%22:%22%22,%22usernames%22:%22%22,%22sensor_name%22:%22AirBeam2-PM2.5%22,%22measurement_type%22:%22Particulate+Matter%22,%22unit_symbol%22:%22%C2%B5g%2Fm%C2%B3%22,%22session_ids%22:%5B57488,57487,57469,57468,57333,57331,57326,57321,57319,57299,57073,56976,56975,56974,56965,56898,56797,56792,56714,56711,56297,56271,56183,55885,55851,55850,55849,55819,55487,55485,55482,55481,55398,55377,55376,55375,55374,55364,55363,55332,55268,55266,55239,55196,55016,55007,54914,54910,54909,54907%5D%7D')
+
+
+#paste(as.character(pm_id), sep="' '", collapse=",")
+
 
 
 
 ```
 
+```{r}
+test <- readxl::read_excel('./data/test.xlsx', sheet = 'Sheet2')
+test %>% 
+  ggplot(aes(x = x, y = y)) + geom_point()
+
+
+```
 
 

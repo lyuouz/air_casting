@@ -2,7 +2,7 @@
 title: "Visualization"
 author: "Lyuou Zhang"
 date: "4/2/2019"
-output: github_document
+output: html_document
 ---
 
 ```{r}
@@ -13,7 +13,10 @@ library(rjson)
 library(data.table)
 library(stringr)
 library(lubridate)
-
+library(leaflet)
+library(magrittr)
+library(htmltools)
+library(plotly)
 ```
 
 ## Pulling data from API (shout-out to Chris)
@@ -46,13 +49,16 @@ df <- ldply(dt, data.frame)
 
 ```
 
-check `df`. This data contains measurement from 23 stations (represented by 23 IDs), generated every minute from 2018-6 to 2019-3. Note that the earliest date is in 2000 which does not make sense. This is more likely to be 2019, so I will change all 2000 to 2019.
+check `df`. This data contains measurement from 23 locations (represented by 23 IDs), generated every minute from 2018-6 to 2019-3. Note that the earliest date is in 2000 which does not make sense. This is more likely to be 2019, so I will change all 2000 to 2019.
 
 ```{r}
 # check data
 head(df) %>% 
   knitr::kable()
 ```
+
+
+## Data cleaning
 
 A bit data cleaning and manipulation
 
@@ -66,13 +72,82 @@ air_data <- df %>%
     time = str_replace(time, 'Z', '')
   ) %>% 
   mutate(
+    time = str_replace(time, '2000', '2019')
+  ) %>% 
+  mutate(
+    time = str_replace(time, '1999', '2018')
+  ) %>% 
+  mutate(
     time = ymd_hms(time),
     ID = as.character(ID)
   ) %>% 
   dplyr::rename(
     station_id = ID
+  ) %>% 
+  filter(
+    !is.na(time)
   )
 
 ```
 
+## Visualization
+
+### Spatial
+
+First of all, we want to know where these stations are. I will use the `leaflet` package and plot these locations on top of OpenStreetMap
+
+```{r}
+location <- df %>% 
+  distinct(latitude, longitude) %>% 
+  slice(-9, -20) %>% 
+  mutate(
+    name = str_c(round(latitude, digits = 2), round(longitude, digits = 2), sep = ', ')
+  )
+
+leaflet() %>% 
+  addTiles() %>% 
+  addCircleMarkers(
+    data = location,
+    lat = ~latitude, lng = ~longitude,
+    color = 'green',
+    label = ~htmlEscape(name)
+  )
+
+
+```
+
+Now I will look at each station. And after we have more information of these stations, I will change the size of each circle according to their average PM2.5 level.
+
+### Temporal
+
+For each location, we want to know how do PM2.5 change over time. Because there are too many data points, I will reduce them to a an hourly average, and plot each location.
+
+For example, station 3 is at (`r location[3,]$latitude`, `r location[3,]$longitude`). Let's plot it
+
+```{r}
+location_3 <- air_data %>% 
+  filter(
+     station_id == '246560'
+  ) %>% 
+  mutate(
+    measure_date = as.Date(time),
+    measure_hour = hour(time)
+  )
+
+loc_3 <- location_3 %>% 
+  mutate(
+    timepoint = str_c(measure_date, measure_hour, sep = ' ')
+  ) %>% 
+  arrange(measure_date, measure_hour) %>% 
+  mutate(
+    row_num = rownames(.)) %>% 
+  mutate(
+    row_num = as.numeric(row_num)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = row_num, y = value)) + geom_line() + geom_smooth()
+
+ggplotly(loc_3)
+
+```
 
