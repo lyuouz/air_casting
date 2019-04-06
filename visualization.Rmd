@@ -25,7 +25,7 @@ Chris provided this part of code. The idea is to pull all the session ids connec
 
 ```{r}
 real <- c("http://aircasting.org/api/realtime/sessions.json?page=0&page_size=500&q[measurements]=true&q[time_from]=0&q[time_to]=2552648500&q[usernames]=NYCEJA")
-
+ 
 tt <- jsonlite::fromJSON(real)
 t <- tt$streams$'AirBeam2-PM2.5'
 t <- data.table(t)
