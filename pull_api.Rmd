@@ -1,0 +1,21 @@
+---
+title: "Pull data from AirCasting API"
+author: "Lyuou Zhang"
+date: "4/7/2019"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+
+```
+
+```{r}
+
+
+
+```
+
