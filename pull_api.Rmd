@@ -76,10 +76,5 @@ airbeam_data <- map(pulled_ids, pull_fun) %>%
 
 ```
 
-```{r}
-
-
-
-```
 
 

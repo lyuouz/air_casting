@@ -19,9 +19,9 @@ I will follow Chris’s method:
   - Step 1: find usernames from AirCasting website under the MAPS
     session
   - Step 2: plug in usernames in the mobile session API call and get the
-    session IDs
-  - Step 3: plug in session IDs in the measurement ID API call and get
-    the measurements in the form of points
+    IDs
+  - Step 3: plug in IDs in the measurement ID API call and get the
+    measurements in the form of points
 
 ## Step 1
 
@@ -29,4 +29,44 @@ Here are the usernames that I found on the AirCasting website:
 `NYCEJA`, `BLU 12`, `HabitatMap`, `BCCHE`, `scooby`, `Ana BCCHE`,
 `Ricardo Esparza`, `Tasha kk`, `lana`, `Marisa Sobel`, `Wadesworld18`,
 `El Puente 3`, `El Puente 4`, `El Puente 2`, `El Puente 1`, `mahdin`,
-`El Puente 5`, `Asemple`, `patqc`, `sjuma`
+`El Puente 5`, `Asemple`, `patqc`,
+`sjuma`
+
+``` r
+usernames <- c('NYCEJA', 'BLU 12', 'HabitatMap', 'BCCHE', 'scooby', 'Ana BCCHE', 'Ricardo Esparza', 'Tasha kk', 'lana', 'Marisa Sobel', 'Wadesworld18', 'El Puente 1', 'El Puente 2', 'El Puente 3', 'El Puente 4', 'El Puente 5', 'mahdin', 'Asemple', 'patqc', 'sjuma')
+
+user_test <- c('NYCEJA', 'HabitatMap', 'BCCHE', 'lana', 'Wadesworld18', 'patqc')
+```
+
+write a function that takes one username from the username vector, plugs
+it into the API call, and extracts the session IDs
+
+``` r
+fetch_id <- function(name){
+  api_call <- str_c('http://aircasting.org/api/sessions.json?page=0&page_size=500&q[measurements]=true&q[time_from]=0&q[time_to]=2552648500&q[usernames]=', name)
+  api_pull <- jsonlite::fromJSON(api_call)
+  user_id <- api_pull$streams$'AirBeam2-PM2.5'$id %>% 
+    .[!is.na(.)]
+
+  user_id
+}
+
+pulled_ids <- map(user_test, fetch_id) %>% 
+  unlist()
+```
+
+``` r
+# This function plug each ID into the measurement API call and pulls data using that ID
+pull_fun <- function(id_element){
+  test_sess <- str_c("http://aircasting.org/api/realtime/stream_measurements.json/?end_date=2281550369000&start_date=0&stream_ids[]=",id_element) %>% 
+    jsonlite::fromJSON(.) %>% 
+    mutate(id = id_element) %>% 
+    as_tibble()
+
+  test_sess
+}
+
+# the output of pull_fun is a list. Take each element of the list and combine them into a tibble
+airbeam_data <- map(pulled_ids, pull_fun) %>% 
+  do.call("bind_rows", .)
+```
