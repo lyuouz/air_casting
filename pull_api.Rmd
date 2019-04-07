@@ -62,7 +62,7 @@ pull_fun <- function(id_element){
     jsonlite::fromJSON(.) %>% 
     mutate(id = id_element) %>% 
     as_tibble()
-    
+
   test_sess
 }
 
