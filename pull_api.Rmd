@@ -31,7 +31,7 @@ Here are the usernames that I found on the AirCasting website:
 `NYCEJA`, `BLU 12`, `HabitatMap`, `BCCHE`, `scooby`, `Ana BCCHE`, `Ricardo Esparza`, `Tasha kk`, `lana`, `Marisa Sobel`, `Wadesworld18`, `El Puente 3`, `El Puente 4`, `El Puente 2`, `El Puente 1`, `mahdin`, `El Puente 5`, `Asemple`, `patqc`, `sjuma`
 
 ```{r}
-usernames <- c('NYCEJA', 'BLU 12', 'HabitatMap', 'BCCHE', 'scooby', 'Ana BCCHE', 'Ricardo Esparza', 'Tasha kk', 'lana', 'Marisa Sobel', 'Wadesworld18', 'El Puente 1', 'El Puente 2', 'El Puente 3', 'El Puente 4', 'El Puente 5', 'mahdin', 'Asemple', 'patqc', 'sjuma')
+usernames <- c('NYCEJA', 'BLU%2012', 'HabitatMap', 'BCCHE', 'scooby', 'Ana%20BCCHE', 'Ricardo%20Esparza', 'Tasha%20kk', 'lana', 'Marisa%20Sobel', 'Wadesworld18', 'El%20Puente%201', 'El%20Puente%202', 'El%20Puente%203', 'El%20Puente%204', 'El%20Puente%205', 'mahdin', 'Asemple', 'patqc', 'sjuma')
 
 user_test <- c('NYCEJA', 'HabitatMap', 'BCCHE', 'lana', 'Wadesworld18', 'patqc')
 
@@ -49,7 +49,7 @@ fetch_id <- function(name){
   user_id
 }
 
-pulled_ids <- map(user_test, fetch_id) %>% 
+pulled_ids <- map(usernames, fetch_id) %>% 
   unlist()
 
 ```
