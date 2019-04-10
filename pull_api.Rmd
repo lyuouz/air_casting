@@ -80,4 +80,3 @@ airbeam_data_tidy = airbeam_data %>%
   separate(sec, into = c("sec", "remove"), sep = "Z") %>% 
   select(-remove)
 ```
-
