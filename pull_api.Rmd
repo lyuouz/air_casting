@@ -70,13 +70,3 @@ pull_fun <- function(id_element){
 airbeam_data <- map(pulled_ids, pull_fun) %>% 
   do.call("bind_rows", .)
 ```
-
-
-```{r}
-airbeam_data_tidy = airbeam_data %>% 
-  separate(time, into = c("year", "month", "day"), sep = "-") %>% 
-  separate(day, into = c("day", "time"), sep = "T") %>% 
-  separate(time, into = c("hour", "min", "sec"), sep = ":") %>% 
-  separate(sec, into = c("sec", "remove"), sep = "Z") %>% 
-  select(-remove)
-```
