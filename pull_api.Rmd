@@ -111,8 +111,8 @@ airbeam_reg <- airbeam_data_tidy %>%
 **Subset 2: extremely high values**
 
 ```{r}
-airbeam_high <- airbeam_reg %>% 
-  anti_join(., airbeam_data_tidy)
+airbeam_high <- airbeam_data_tidy %>% 
+  filter(value > 250)
 
 
 ```
@@ -163,6 +163,25 @@ airbeam_reg %>%
 ```
 
 In this table, we see that average PM2.5 peaks in the summertime. 
+
+**Q4: Where do the extreme values appear?**
+
+```{r}
+location_high <- airbeam_high %>% 
+  group_by(latitude, longitude) %>% 
+  summarize(avg_pm = mean(value)) 
+
+leaflet() %>% 
+  addTiles() %>% 
+  addCircleMarkers(
+    data = location_high,
+    lat = ~latitude, lng = ~longitude,
+    color = 'green',
+    radius = 3
+  )
+```
+
+
 
 =======
 >>>>>>> 8516ccac08f55058ce91498a50ef17231ae8d3fb
