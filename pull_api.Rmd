@@ -11,6 +11,7 @@ library(httr)
 library(jsonlite)
 library(purrr)
 library(stringr)
+library(leaflet)
 ```
 
 This `.Rmd` file pulls AirCasting data from API, clean and tidy them.
@@ -148,7 +149,20 @@ leaflet() %>%
 
 ```
 
-   
+**Q3: Monthly or seasonal trends?**
+
+```{r}
+monthly_averages = airbeam_reg %>% 
+  group_by(month, year) %>% 
+  mutate(average = mean(value))
+
+airbeam_reg %>%
+  group_by(month, year) %>%
+  summarize(average = mean(value), pm_max = max(value), pm_min = min(value), observation_count = n()) %>%
+  knitr::kable()
+```
+
+In this table, we see that average PM2.5 peaks in the summertime. 
 
 =======
 >>>>>>> 8516ccac08f55058ce91498a50ef17231ae8d3fb
