@@ -11,6 +11,7 @@ library(httr)
 library(jsonlite)
 library(purrr)
 library(stringr)
+library(leaflet)
 ```
 
 This `.Rmd` file pulls AirCasting data from API, clean and tidy them.
@@ -71,13 +72,87 @@ airbeam_data <- map(pulled_ids, pull_fun) %>%
   do.call("bind_rows", .)
 ```
 
+# Data cleaning for mobile sessions
+
+We did the following to clean the data:
+
+1.  Seperated date and time and created a date variable 
+2.  Removed the values that beyond the range (0, 250), and divided the data into two subsets: a subset with regular values and the other with extremely high values. We analyzed them seperately
+3.  Removed or edited the latitude and longitude that were not in New York. 
 
 ```{r}
+
 airbeam_data_tidy = airbeam_data %>% 
   separate(time, into = c("year", "month", "day"), sep = "-") %>% 
   separate(day, into = c("day", "time"), sep = "T") %>% 
   separate(time, into = c("hour", "min", "sec"), sep = ":") %>% 
   separate(sec, into = c("sec", "remove"), sep = "Z") %>% 
-  select(-remove)
+  select(-remove) %>% 
+  mutate(
+    date = str_c(year, month, day, sep = '-'),
+    date = as.Date(date)
+  ) %>% 
+  filter(value > 0 & value < 1000) %>% 
+  filter(latitude > 38 & longitude < -70) %>% 
+  filter(latitude > 40 & longitude > -75)
+  
+
+```
+
+**Subset 1: regular measurements**
+
+```{r}
+airbeam_reg <- airbeam_data_tidy %>% 
+  filter(value <= 250)
+
+```
+
+**Subset 2: extremely high values**
+
+```{r}
+airbeam_high <- airbeam_reg %>% 
+  anti_join(., airbeam_data_tidy)
+
+
+```
+
+
+Our analysis willl primarily focus on the regular measurements. However, extremely high measurements are also useful, because they could help identify potential sources that cause peaks in PM2.5. These two subsets will be analyzed seperately.
+
+# Visualization
+
+Here are the questions that we want to answer in the visualization:
+
+1.  In general, where are PM2.5 measured in the city? Which areas have more observations and which has less?  
+2.  How does PM~2.5~ observations change throughout a day?
+3.  Are there any monthly or seasonal trends?
+4.  Where do the extreme values appear?
+
+**Q1: Where are PM2.5 measured?**
+
+Here's a plot that shows the spatial distribution of all the locations. I have already removed those that are not in New York.
+
+```{r}
+location_reg <- airbeam_reg %>% 
+  group_by(latitude, longitude) %>% 
+  summarize(avg_pm = mean(value)) 
+
+leaflet() %>% 
+  addTiles() %>% 
+  addCircleMarkers(
+    data = location_reg,
+    lat = ~latitude, lng = ~longitude,
+    color = 'green',
+    radius = 3
+  )
+
+```
+
+
+
+```{r}
+
+
+
 ```
 
