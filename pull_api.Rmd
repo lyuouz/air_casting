@@ -11,7 +11,6 @@ library(httr)
 library(jsonlite)
 library(purrr)
 library(stringr)
-library(leaflet)
 ```
 
 This `.Rmd` file pulls AirCasting data from API, clean and tidy them.
@@ -71,6 +70,7 @@ pull_fun <- function(id_element){
 airbeam_data <- map(pulled_ids, pull_fun) %>% 
   do.call("bind_rows", .)
 ```
+<<<<<<< HEAD
 
 # Data cleaning for mobile sessions
 
@@ -150,3 +150,5 @@ leaflet() %>%
 
    
 
+=======
+>>>>>>> 8516ccac08f55058ce91498a50ef17231ae8d3fb
