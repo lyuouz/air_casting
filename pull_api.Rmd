@@ -35,7 +35,6 @@ Here are the usernames that I found on the AirCasting website:
 usernames <- c('NYCEJA', 'BLU%2012', 'HabitatMap', 'BCCHE', 'scooby', 'Ana%20BCCHE', 'Ricardo%20Esparza', 'Tasha%20kk', 'lana', 'Marisa%20Sobel', 'Wadesworld18', 'El%20Puente%201', 'El%20Puente%202', 'El%20Puente%203', 'El%20Puente%204', 'El%20Puente%205', 'mahdin', 'Asemple', 'patqc', 'sjuma')
 
 user_test <- c('NYCEJA', 'HabitatMap', 'BCCHE', 'lana', 'Wadesworld18', 'patqc')
-
 ```
 
 write a function that takes one username from the username vector, plugs it into the  API call, and extracts the session IDs
@@ -52,12 +51,10 @@ fetch_id <- function(name){
 
 pulled_ids <- map(usernames, fetch_id) %>% 
   unlist()
-
 ```
 
 ```{r}
-
-# This function plug each ID into the measurement API call and pulls data using that ID
+# This function plugs each ID into the measurement API call and pulls data using that ID
 pull_fun <- function(id_element){
   test_sess <- str_c("http://aircasting.org/api/realtime/stream_measurements.json/?end_date=2281550369000&start_date=0&stream_ids[]=",id_element) %>% 
     jsonlite::fromJSON(.) %>% 
@@ -67,7 +64,7 @@ pull_fun <- function(id_element){
   test_sess
 }
 
-# the output of pull_fun is a list. Take each element of the list and combine them into a tibble
+# The output of pull_fun is a list. Take each element of the list and combine them into a tibble
 airbeam_data <- map(pulled_ids, pull_fun) %>% 
   do.call("bind_rows", .)
 ```
@@ -82,7 +79,6 @@ We did the following to clean the data:
 3.  Removed or edited the latitude and longitude that were not in New York. 
 
 ```{r}
-
 airbeam_data_tidy = airbeam_data %>% 
   separate(time, into = c("year", "month", "day"), sep = "-") %>% 
   separate(day, into = c("day", "time"), sep = "T") %>% 
@@ -96,27 +92,21 @@ airbeam_data_tidy = airbeam_data %>%
   filter(value > 0 & value < 1000) %>% 
   filter(latitude > 38 & longitude < -70) %>% 
   filter(latitude > 40 & longitude > -75)
-  
-
 ```
 
 **Subset 1: regular measurements**
 
 ```{r}
 airbeam_reg <- airbeam_data_tidy %>% 
-  filter(value <= 250)
-
+  filter(value <= 50)
 ```
 
 **Subset 2: extremely high values**
 
 ```{r}
 airbeam_high <- airbeam_data_tidy %>% 
-  filter(value > 250)
-
-
+  filter(value > 50)
 ```
-
 
 Our analysis willl primarily focus on the regular measurements. However, extremely high measurements are also useful, because they could help identify potential sources that cause peaks in PM2.5. These two subsets will be analyzed seperately.
 
@@ -139,7 +129,6 @@ airbeam_data_tidy %>%
     x = 'Date',
     y = 'PM2.5, ug/m3'
   )
-
 ```
 
 GEO
@@ -159,7 +148,6 @@ leaflet(data = location_reg) %>%
     color = 'green',
     radius = 0.2
   )
-
 ```
 
 Daily trends
@@ -170,8 +158,6 @@ airbeam_data_tidy %>%
   summarize(pm2.5_hour = mean(value)) %>% 
   
 ggsave('all_data_points.jpeg')
-
-
 ```
 
 
