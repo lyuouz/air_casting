@@ -12,6 +12,7 @@ library(jsonlite)
 library(purrr)
 library(stringr)
 library(leaflet)
+library(arules)
 ```
 
 This `.Rmd` file pulls AirCasting data from API, clean and tidy them.
@@ -119,16 +120,18 @@ Here's the updated version of visualization to test the plots for the final deli
 *  Daily average and hourly average
 *  Group by usernames?
 
-Overall data
+Overall Data
 
 ```{r}
 airbeam_data_tidy %>% 
-  ggplot(aes(x = date, y = value)) + geom_point() +
+  mutate(id = as.factor(id)) %>%
+  ggplot(aes(x = date, y = value, color = id)) + geom_point() +
   labs(
     title = 'All data points, March 2018 - April 2019',
     x = 'Date',
     y = 'PM2.5, ug/m3'
-  )
+  ) +
+  theme(legend.position = "none")
 ```
 
 GEO
@@ -155,21 +158,11 @@ Daily trends
 ```{r}
 airbeam_data_tidy %>% 
   group_by(hour) %>% 
-  summarize(pm2.5_hour = mean(value)) %>% 
+  summarize(hourly_average = mean(value)) %>%
+  knitr::kable()
   
 ggsave('all_data_points.jpeg')
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 
 
