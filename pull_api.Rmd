@@ -2,7 +2,7 @@
 title: "Pull data from AirCasting API"
 author: "Lyuou Zhang"
 date: "4/7/2019"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include = FALSE}
@@ -122,66 +122,68 @@ Our analysis willl primarily focus on the regular measurements. However, extreme
 
 # Visualization
 
-Here are the questions that we want to answer in the visualization:
+Here's the updated version of visualization to test the plots for the final deliverable in static forms. A few notes:  
 
-1.  In general, where are PM2.5 measured in the city? Which areas have more observations and which has less?  
-2.  How does PM~2.5~ observations change throughout a day?
-3.  Are there any monthly or seasonal trends?
-4.  Where do the extreme values appear?
+*  Time duration has to change over time
+*  Because of the quantity of the data, they have to be reduced at least to 1-minute
+*  Daily average and hourly average
+*  Group by usernames?
 
-**Q1: Where are PM2.5 measured?**
-
-Here's a plot that shows the spatial distribution of all the locations. I have already removed those that are not in New York.
+Overall data
 
 ```{r}
-location_reg <- airbeam_reg %>% 
-  group_by(latitude, longitude) %>% 
-  summarize(avg_pm = mean(value)) 
-
-leaflet() %>% 
-  addTiles() %>% 
-  addCircleMarkers(
-    data = location_reg,
-    lat = ~latitude, lng = ~longitude,
-    color = 'green',
-    radius = 3
+airbeam_data_tidy %>% 
+  ggplot(aes(x = date, y = value)) + geom_point() +
+  labs(
+    title = 'All data points, March 2018 - April 2019',
+    x = 'Date',
+    y = 'PM2.5, ug/m3'
   )
 
 ```
 
-**Q3: Monthly or seasonal trends?**
+GEO
 
 ```{r}
-monthly_averages = airbeam_reg %>% 
-  group_by(month, year) %>% 
-  mutate(average = mean(value))
-
-airbeam_reg %>%
-  group_by(month, year) %>%
-  summarize(average = mean(value), pm_max = max(value), pm_min = min(value), observation_count = n()) %>%
-  knitr::kable()
-```
-
-In this table, we see that average PM2.5 peaks in the summertime. 
-
-**Q4: Where do the extreme values appear?**
-
-```{r}
-location_high <- airbeam_high %>% 
+location_reg <- airbeam_reg %>%
+  mutate(latitude = round(latitude, 3),
+         longitude = round(longitude, 3)) %>% 
   group_by(latitude, longitude) %>% 
-  summarize(avg_pm = mean(value)) 
+  summarize(avg_pm = mean(value))
+  
 
-leaflet() %>% 
-  addTiles() %>% 
+leaflet(data = location_reg) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(
-    data = location_high,
     lat = ~latitude, lng = ~longitude,
     color = 'green',
-    radius = 3
+    radius = 0.2
   )
+
+```
+
+Daily trends
+
+```{r}
+airbeam_data_tidy %>% 
+  group_by(hour) %>% 
+  summarize(pm2.5_hour = mean(value)) %>% 
+  
+ggsave('all_data_points.jpeg')
+
+
 ```
 
 
 
-=======
->>>>>>> 8516ccac08f55058ce91498a50ef17231ae8d3fb
+
+
+
+
+
+
+
+
+
+
+
