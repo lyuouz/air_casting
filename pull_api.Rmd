@@ -81,7 +81,7 @@ airbeam_data <- map(pulled_ids$streams.AirBeam2.PM2.5.id, pull_fun) %>%
 We did the following to clean the data:
 
 1.  Seperated date and time and created a date variable 
-2.  Removed the values that beyond the range (0, 250), and divided the data into two subsets: a subset with regular values and the other with extremely high values. We analyzed them seperately
+2.  Removed the values that beyond the range (0, 1000), and divided the data into two subsets: a subset with regular values (<=50) and the other with extreme high values (>50). We analyzed them seperately in certain instances.
 3.  Removed or edited the latitude and longitude that were not in New York. 
 
 ```{r}
@@ -129,33 +129,30 @@ Plot of Overall Data
 
 ```{r}
 airbeam_data_tidy %>% 
-  mutate(id = as.factor(id)) %>%
-  ggplot(aes(x = date, y = value, color = id)) + geom_point() +
+  ggplot(aes(x = date, y = value, color = username)) + geom_point() +
   labs(
     title = 'All data points, March 2018 - April 2019',
     x = 'Date',
     y = 'PM2.5, ug/m3'
   ) +
-  theme(legend.position = "none")
+   theme(legend.title = element_blank())
 ```
 
 Daily Average Plots
 
 ```{r}
 airbeam_data_tidy %>% 
-  mutate(date = as.factor(date)) %>% 
-  group_by(date, id) %>% 
+  group_by(date, username) %>% 
   mutate(daily_average = mean(value)) %>% 
-  select(date, daily_average, id) %>% 
+  select(date, daily_average, username) %>% 
   distinct() %>% 
-  ggplot(aes(x = date, y = daily_average, color = date)) + geom_point() +
+  ggplot(aes(x = date, y = daily_average, color = username)) + geom_point() + geom_line() +
   labs(
-    title = 'Daily averages at each station, March 2018 - April 2019',
+    title = 'Daily averages, March 2018 - April 2019',
     x = 'Date',
     y = 'Average PM2.5, ug/m3'
   ) +
-  theme(legend.position = "none", 
-        axis.text.x = element_text(angle = 90))
+  theme(legend.title = element_blank())
 ```
 
 ```{r}
@@ -174,6 +171,25 @@ airbeam_data_tidy %>%
   theme(legend.position = "none", 
         axis.text.x = element_text(angle = 90))
 ```
+
+July 2018 - March 2019 Daily Average Plots
+
+```{r}
+airbeam_data_tidy %>% 
+  filter(month == "08" | month == "09" | month == "10" | month == "11" | month == "12" | month == "01" | month == "02") %>% 
+  group_by(date, username) %>% 
+  mutate(daily_average = mean(value)) %>% 
+  select(date, daily_average, username) %>% 
+  distinct() %>% 
+  ggplot(aes(x = date, y = daily_average, color = username)) + geom_point() + geom_line() +
+  labs(
+    title = 'Daily averages, August 2018 - March 2019',
+    x = 'Date',
+    y = 'Average PM2.5, ug/m3'
+  ) +
+  theme(legend.title = element_blank())
+```
+
 
 GEO
 
