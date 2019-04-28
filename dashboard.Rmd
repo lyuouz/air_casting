@@ -1,0 +1,67 @@
+---
+title: "AirCasting Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: flatly
+    social: menu
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(broom)
+library(shiny)
+library(httr)
+library(jsonlite)
+library(purrr)
+library(stringr)
+library(leaflet)
+```
+
+
+Mobile
+=========================================
+
+input_mobile {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r}
+dateRangeInput('dates', label = h3('Choose your start and end date:'), 
+               format = 'yyyy-mm-dd', 
+               min = "2018-03-01", max = Sys.Date(),
+               start = Sys.Date() - 365,
+               end = Sys.Date()
+               )
+
+actionButton('goButton', 'Go!')
+
+```
+
+
+
+
+
+Column{data-width=300}
+-----------------------------------------------------------------------
+
+### Plots
+
+```{r}
+
+
+
+
+```
+
+
+
+Fixed
+=========================================
+
+Column
+-----------------------------------------
+
+
+
