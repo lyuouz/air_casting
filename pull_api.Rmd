@@ -156,7 +156,7 @@ airbeam_data_tidy %>%
   distinct() %>% 
   ggplot(aes(x = date, y = daily_average, color = username)) + geom_point() + geom_line() +
   labs(
-    title = 'Daily averages, March 2018 - April 2019',
+    title = 'Daily averages by Username, March 2018 - April 2019',
     x = 'Date',
     y = 'Average PM2.5, ug/m3'
   ) +
@@ -165,7 +165,6 @@ airbeam_data_tidy %>%
 
 ```{r}
 airbeam_data_tidy %>% 
-  mutate(date = as.factor(date)) %>% 
   group_by(date) %>% 
   mutate(daily_average = mean(value)) %>% 
   select(date, daily_average) %>% 
