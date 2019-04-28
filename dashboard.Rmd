@@ -18,38 +18,146 @@ library(jsonlite)
 library(purrr)
 library(stringr)
 library(leaflet)
+library(shinyWidgets)
 ```
 
 
 Mobile
 =========================================
 
-input_mobile {.sidebar data-width=300}
+input_fixed {.sidebar data-width=300}
 -----------------------------------------------------------------------
 
 ```{r}
-dateRangeInput('dates', label = h3('Choose your start and end date:'), 
+usernames <- c('NYCEJA', 'BLU%2012', 'HabitatMap', 'BCCHE', 'scooby', 'Ana%20BCCHE', 'Ricardo%20Esparza', 'Tasha%20kk', 'lana', 'Wadesworld18', 'El%20Puente%204', 'El%20Puente%205', 'mahdin', 'Asemple', 'patqc')
+
+pickerInput("username_choice", label = h4("Select username:"),
+            choices = usernames, multiple = TRUE, selected = usernames, options = list(`actions-box` = TRUE))
+
+```
+
+
+```{r}
+dateRangeInput('dates', label = h4('Choose your start and end date:'), 
                format = 'yyyy-mm-dd', 
                min = "2018-03-01", max = Sys.Date(),
                start = Sys.Date() - 365,
                end = Sys.Date()
                )
 
-actionButton('goButton', 'Go!')
-
 ```
 
+```{r}
+airbeam_data_tidy <- read_csv('./data/airbeam_data_tidy.csv')
 
+plot_data <- reactive({
+  airbeam_data_tidy %>% 
+    filter(
+      username %in% input$username_choice,
+           date %in% input$dates[1]:input$dates[2]
+    )
+  
+})
+
+
+```
 
 
 
 Column{data-width=300}
 -----------------------------------------------------------------------
 
-### Plots
+### All Data Points
+
+```{r}
+renderPlot({
+  plot_data() %>% 
+  ggplot(aes(x = date, y = value, color = username)) + geom_point() +
+  labs(
+    title = 'All data points, March 2018 - April 2019',
+    x = 'Date',
+    y = 'PM2.5, ug/m3'
+  ) +
+   theme(legend.title = element_blank())
+  
+})
+
+
+
+```
+
+### Daily averages by Username
 
 ```{r}
 
+renderPlot({
+ plot_data() %>% 
+   group_by(date, username) %>% 
+  mutate(daily_average = mean(value)) %>% 
+  select(date, daily_average, username) %>% 
+  distinct() %>% 
+  ggplot(aes(x = date, y = daily_average, color = username)) + geom_point() + geom_line() +
+  labs(
+    x = 'Date',
+    y = 'Average PM2.5, ug/m3'
+  ) +
+  theme(legend.title = element_blank())
+  
+  
+  
+  
+})
+
+
+
+
+```
+
+
+Column{data-width=300}
+-----------------------------------------------------------------------
+
+### Daily Trend
+
+
+```{r}
+renderTable({
+  plot_data() %>% 
+    group_by(hour) %>% 
+  summarize(hourly_average = mean(value))
+  
+}, align = 'c')
+
+
+
+```
+
+### The Magic Map
+
+```{r}
+
+loc <- reactive({
+  plot_data() %>% 
+  mutate(latitude = round(latitude, 3),
+         longitude = round(longitude, 3)) %>% 
+  group_by(latitude, longitude) %>% 
+  summarize(avg_pm = mean(value))
+  
+  
+})
+  
+
+renderLeaflet({
+  leaflet(data = loc()) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(
+    lat = ~latitude, lng = ~longitude,
+    color = 'green',
+    radius = 0.2
+  )
+  
+  
+})
 
 
 
