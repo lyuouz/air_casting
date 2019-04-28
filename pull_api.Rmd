@@ -12,7 +12,6 @@ library(jsonlite)
 library(purrr)
 library(stringr)
 library(leaflet)
-library(arules)
 ```
 
 This `.Rmd` file pulls AirCasting data from API, clean and tidy them.
@@ -120,7 +119,7 @@ Here's the updated version of visualization to test the plots for the final deli
 *  Daily average and hourly average
 *  Group by usernames?
 
-Overall Data
+Plot of Overall Data
 
 ```{r}
 airbeam_data_tidy %>% 
@@ -132,6 +131,42 @@ airbeam_data_tidy %>%
     y = 'PM2.5, ug/m3'
   ) +
   theme(legend.position = "none")
+```
+
+Daily Average Plots
+
+```{r}
+airbeam_data_tidy %>% 
+  mutate(date = as.factor(date)) %>% 
+  group_by(date, id) %>% 
+  mutate(daily_average = mean(value)) %>% 
+  select(date, daily_average, id) %>% 
+  distinct() %>% 
+  ggplot(aes(x = date, y = daily_average, color = date)) + geom_point() +
+  labs(
+    title = 'Daily averages at each station, March 2018 - April 2019',
+    x = 'Date',
+    y = 'Average PM2.5, ug/m3'
+  ) +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+airbeam_data_tidy %>% 
+  mutate(date = as.factor(date)) %>% 
+  group_by(date) %>% 
+  mutate(daily_average = mean(value)) %>% 
+  select(date, daily_average) %>% 
+  distinct() %>% 
+  ggplot(aes(x = date, y = daily_average)) + geom_point() + geom_line(group = 1) +
+  labs(
+    title = 'Overall daily averages, March 2018 - April 2019',
+    x = 'Date',
+    y = 'Average PM2.5, ug/m3'
+  ) +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 90))
 ```
 
 GEO
