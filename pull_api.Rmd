@@ -100,6 +100,14 @@ airbeam_data_tidy = airbeam_data %>%
   filter(latitude > 40 & longitude > -75)
 ```
 
+```{r}
+write.csv(airbeam_data_tidy, './data/airbeam_data_tidy.csv')
+
+
+
+```
+
+
 **Subset 1: regular measurements**
 
 ```{r}
