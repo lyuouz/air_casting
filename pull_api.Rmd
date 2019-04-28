@@ -180,7 +180,7 @@ airbeam_data_tidy %>%
         axis.text.x = element_text(angle = 90))
 ```
 
-July 2018 - March 2019 Daily Average Plots
+August 2018 - March 2019 Daily Average Plots
 
 ```{r}
 airbeam_data_tidy %>% 
