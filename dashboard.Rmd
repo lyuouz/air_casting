@@ -192,9 +192,15 @@ dateRangeInput('date_range', label = h4('Choose your start and end date:'),
 
 ```{r}
 DT::renderDataTable({
-  plot_data() %>% 
-    select(username, id, latitude, longitude, PM2.5) %>% 
-    mutate(PM2.5 = round(PM2.5, digits = 2))
+  airbeam_data_tidy2 %>% 
+    select(username, id, latitude, longitude, date, PM2.5) %>% 
+    filter(
+      username %in% input$username_data,
+      date %in% input$date_range[1]:input$date_range[2]
+    ) %>% 
+    mutate(PM2.5 = round(PM2.5, digits = 2),
+           latitude = round(latitude, digits = 4),
+           longitude = round(longitude, digits = 4))
   
   
 })
