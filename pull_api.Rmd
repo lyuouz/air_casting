@@ -101,7 +101,10 @@ airbeam_data_tidy = airbeam_data %>%
 ```
 
 ```{r}
-write.csv(airbeam_data_tidy, './data/airbeam_data_tidy.csv')
+airbeam_data_tidy %>% 
+  group_by(username, id, latitude, longitude, date, hour, min) %>% 
+  summarize(PM2.5 = mean(value)) %>% 
+  write.csv(., './data/airbeam_data_tidy.csv')
 
 
 

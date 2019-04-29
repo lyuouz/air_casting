@@ -48,10 +48,10 @@ dateRangeInput('dates', label = h4('Choose your start and end date:'),
 ```
 
 ```{r}
-airbeam_data_tidy <- read_csv('./data/airbeam_data_tidy.csv')
+airbeam_data_tidy2 <- read_csv('./data/airbeam_data_tidy.csv')
 
 plot_data <- reactive({
-  airbeam_data_tidy %>% 
+  airbeam_data_tidy2 %>% 
     filter(
       username %in% input$username_choice,
            date %in% input$dates[1]:input$dates[2]
@@ -72,9 +72,8 @@ Column{data-width=300}
 ```{r}
 renderPlot({
   plot_data() %>% 
-  ggplot(aes(x = date, y = value, color = username)) + geom_point() +
+  ggplot(aes(x = date, y = PM2.5, color = username)) + geom_point() +
   labs(
-    title = 'All data points, March 2018 - April 2019',
     x = 'Date',
     y = 'PM2.5, ug/m3'
   ) +
@@ -93,7 +92,7 @@ renderPlot({
 renderPlot({
  plot_data() %>% 
    group_by(date, username) %>% 
-  mutate(daily_average = mean(value)) %>% 
+  mutate(daily_average = mean(PM2.5)) %>% 
   select(date, daily_average, username) %>% 
   distinct() %>% 
   ggplot(aes(x = date, y = daily_average, color = username)) + geom_point() + geom_line() +
@@ -124,7 +123,7 @@ Column{data-width=300}
 renderTable({
   plot_data() %>% 
     group_by(hour) %>% 
-  summarize(hourly_average = mean(value))
+  summarize(hourly_average = mean(PM2.5))
   
 }, align = 'c')
 
@@ -141,7 +140,7 @@ loc <- reactive({
   mutate(latitude = round(latitude, 3),
          longitude = round(longitude, 3)) %>% 
   group_by(latitude, longitude) %>% 
-  summarize(avg_pm = mean(value))
+  summarize(avg_pm = mean(PM2.5))
   
   
 })
@@ -165,11 +164,46 @@ renderLeaflet({
 
 
 
-Fixed
+Data Explorer
 =========================================
 
 Column
 -----------------------------------------
 
+```{r}
+pickerInput("username_data", label = h4("Select username:"),
+            choices = usernames, multiple = TRUE, selected = usernames, options = list(`actions-box` = TRUE))
 
+
+
+```
+
+```{r}
+
+dateRangeInput('date_range', label = h4('Choose your start and end date:'), 
+               format = 'yyyy-mm-dd', 
+               min = "2018-03-01", max = Sys.Date(),
+               start = Sys.Date() - 365,
+               end = Sys.Date()
+               )
+
+```
+
+
+```{r}
+DT::renderDataTable({
+  plot_data() %>% 
+    select(username, id, latitude, longitude, PM2.5) %>% 
+    mutate(PM2.5 = round(PM2.5, digits = 2))
+  
+  
+})
+
+
+
+
+
+
+
+```
 
